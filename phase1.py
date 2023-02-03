@@ -16,7 +16,41 @@ class DFA:
     def in_accept_state(self):
         return self.current_state in self.accept_states
 
+    def is_language_empty(self):
+        visited = set()
+        def dfs(state):
+            if state in visited or state is None:
+                return
+            visited.add(state)
+            for symbol in self.alphabet:
+                next_state = self.transition_function.get((state, symbol))
+                dfs(next_state)
+        found_accept = False
+        dfs(self.start_state)
+        for state in visited:
+            if state in self.accept_states:
+                found_accept = True
+                break
+        return not found_accept
 
+        visited = set()
+        rec_stack = set()
+        for state in self.states:
+            if state not in visited:
+                if not dfs(state, visited, rec_stack):
+                    return False
+        return True
+    def generate_strings(self, state, current_string, max_length, list):
+
+        if len(current_string) > max_length:
+            return
+        if state in self.accept_states:
+            list.append(current_string)
+        for symbol in self.alphabet:
+            next_state = self.transition_function.get((state, symbol))
+            self.generate_strings(next_state, current_string + symbol, max_length, list)
+        
+    
 states = {'S1', 'S2', 'S3', 'S4', 'S5'}
 
 # Define the alphabet of the DFA
