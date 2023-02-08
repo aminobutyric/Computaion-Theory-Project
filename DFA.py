@@ -366,7 +366,7 @@ if __name__ == '__main__':
     if intersection.isFinite():
       print('Intersection is finite')
     else:
-    print('Intersection is not finite')
+      print('Intersection is not finite')
 
     # Creating the difference of these two DFA's in both demanded ways.
 
