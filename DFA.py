@@ -139,6 +139,32 @@ class DFA:
 
         # Return a new instance of the DFA class with the new states, alphabet, transition function, start state, and accept states
         return DFA(new_states, new_alphabet, new_transition_function, new_start_state, new_accept_states)
+    
+    @staticmethod
+    def intersection(cls, dfa1, dfa2):
+        return dfa1.intersection(dfa2)
+
+    def intersection(self, dfa2):
+        """
+        Compute the intersection of this DFA and dfa2
+        """
+        # Create a new set of states by taking the Cartesian product of the states of the two DFA's
+        new_states = set(itertools.product(self.states, dfa2.states))
+        # Create a new alphabet by taking the union of the alphabets of the two DFA's
+        new_alphabet = self.alphabet.union(dfa2.alphabet)
+        # Create a new transition function by combining the transition functions of the two DFA's
+        new_transition_function = {}
+        for state1 in self.states:
+            for state2 in dfa2.states:
+                for symbol in new_alphabet:
+                    new_transition_function[((state1, state2), symbol)] = (
+                    self.transition_function.get((state1, symbol)), dfa2.transition_function.get((state2, symbol)))
+        # Create a new start state by taking the Cartesian product of the start states of the two DFA's
+        new_start_state = (self.start_state, dfa2.start_state)
+        # Create a new set of accept states by taking the Cartesian product of the accept states of the two DFA's
+        new_accept_states = set(itertools.product(self.accept_states, dfa2.accept_states))
+        # Create and return the new DFA
+        return DFA(new_states, new_alphabet, new_transition_function, new_start_state, new_accept_states)
 
 
 if __name__ == '__main__':
