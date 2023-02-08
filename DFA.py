@@ -1,4 +1,7 @@
+import itertools
+
 class DFA:
+
 
     def __init__(self, states, alphabet, transition_function, start_state, accept_states):
         self.states = states
@@ -82,6 +85,86 @@ class DFA:
         new_accept_states = self.states - self.accept_states
         # return a new instance of the DFA class with the new accept states
         return DFA(self.states, self.alphabet, self.transition_function, self.start_state, new_accept_states)
+
+    @staticmethod
+    def union(cls, dfa1, dfa2):
+
+        if not isinstance(dfa1, cls):
+            raise TypeError("First argument must be an instance of DFA")
+        if not isinstance(dfa2, cls):
+            raise TypeError("Second argument must be an instance of DFA")
+        # Create a new set of states that is the union of the states of dfa1 and dfa2
+        new_states = dfa1.states.union(dfa2.states)
+        # Create a new set of accept states that is the union of the accept states of dfa1 and dfa2
+        new_accept_states = dfa1.accept_states.union(dfa2.accept_states)
+        # Create a new start state that is the tuple of the start states of dfa1 and dfa2
+        new_start_state = (dfa1.start_state, dfa2.start_state)
+        # Create a new transition function that combines the transition functions of dfa1 and dfa2
+        new_transition_function = {}
+        for state, symbol in itertools.product(new_states, dfa1.alphabet.union(dfa2.alphabet)):
+            next_state1 = dfa1.transition_function.get((state, symbol))
+            next_state2 = dfa2.transition_function.get((state, symbol))
+            if next_state1 is None:
+                new_transition_function[(state, symbol)] = next_state2
+            elif next_state2 is None:
+                new_transition_function[(state, symbol)] = next_state1
+            else:
+                new_transition_function[(state, symbol)] = (next_state1, next_state2)
+        # Return a new instance of the DFA class with the new states, accept states, start state, and transition function
+        return cls(new_states, dfa1.alphabet.union(dfa2.alphabet), new_transition_function, new_start_state,
+                   new_accept_states)
+
+    def union(self, dfa2):
+        # Create a new alphabet that is the union of the two alphabets
+        new_alphabet = self.alphabet.union(dfa2.alphabet)
+
+        # Create a new set of states that is the cartesian product of the two sets of states
+        new_states = set(itertools.product(self.states, dfa2.states))
+
+        # Create a new start state that is a tuple of the two start states
+        new_start_state = (self.start_state, dfa2.start_state)
+
+        # Create a new set of accept states that is the cartesian product of the two sets of accept states
+        new_accept_states = set(itertools.product(self.accept_states, dfa2.states)) | set(
+            itertools.product(self.states, dfa2.accept_states))
+
+        # Create a new transition function that maps from a pair of states to a new state
+        new_transition_function = {}
+        for state1 in self.states:
+            for symbol in self.alphabet:
+                next_state1 = self.transition_function.get((state1, symbol))
+                for state2 in dfa2.states:
+                    next_state2 = dfa2.transition_function.get((state2, symbol))
+                    new_transition_function[((state1, state2), symbol)] = (next_state1, next_state2)
+
+        # Return a new instance of the DFA class with the new states, alphabet, transition function, start state, and accept states
+        return DFA(new_states, new_alphabet, new_transition_function, new_start_state, new_accept_states)
+    
+    @staticmethod
+    def intersection(cls, dfa1, dfa2):
+        return dfa1.intersection(dfa2)
+
+    def intersection(self, dfa2):
+        """
+        Compute the intersection of this DFA and dfa2
+        """
+        # Create a new set of states by taking the Cartesian product of the states of the two DFA's
+        new_states = set(itertools.product(self.states, dfa2.states))
+        # Create a new alphabet by taking the union of the alphabets of the two DFA's
+        new_alphabet = self.alphabet.union(dfa2.alphabet)
+        # Create a new transition function by combining the transition functions of the two DFA's
+        new_transition_function = {}
+        for state1 in self.states:
+            for state2 in dfa2.states:
+                for symbol in new_alphabet:
+                    new_transition_function[((state1, state2), symbol)] = (
+                    self.transition_function.get((state1, symbol)), dfa2.transition_function.get((state2, symbol)))
+        # Create a new start state by taking the Cartesian product of the start states of the two DFA's
+        new_start_state = (self.start_state, dfa2.start_state)
+        # Create a new set of accept states by taking the Cartesian product of the accept states of the two DFA's
+        new_accept_states = set(itertools.product(self.accept_states, dfa2.accept_states))
+        # Create and return the new DFA
+        return DFA(new_states, new_alphabet, new_transition_function, new_start_state, new_accept_states)
 
 
 if __name__ == '__main__':
