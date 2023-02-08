@@ -22,7 +22,6 @@ class DFA:
 
     def is_language_empty(self):
         visited = set()
-
         def dfs(state):
             if state in visited or state is None:
                 return
@@ -30,6 +29,7 @@ class DFA:
             for symbol in self.alphabet:
                 next_state = self.transition_function.get((state, symbol))
                 dfs(next_state)
+
         found_accept = False
         dfs(self.start_state)
         for state in visited:
@@ -61,16 +61,16 @@ class DFA:
         n = len(self.states)
         listN = []
         list2N = []
-        self.generate_strings(self.start_state, '', n-1, listN)
-        self.generate_strings(self.start_state, '', (2*n)-1, list2N)
+        self.generate_strings(self.start_state, '', n - 1, listN)
+        self.generate_strings(self.start_state, '', (2 * n) - 1, list2N)
         listN = set(listN)
         list2N = set(list2N)
-        res = list2N-listN
+        res = list2N - listN
         if len(res) == 0:
             return True
         else:
             return False
-    
+
     def shortestWord(self, list):
         return len(min(list))
 
@@ -82,9 +82,6 @@ class DFA:
         new_accept_states = self.states - self.accept_states
         # return a new instance of the DFA class with the new accept states
         return DFA(self.states, self.alphabet, self.transition_function, self.start_state, new_accept_states)
-
-
-
 
 
 if __name__ == '__main__':
@@ -118,8 +115,8 @@ if __name__ == '__main__':
     dfa = DFA(states, alphabet, transition_function, start_state, accept_states)
 
     # Test the DFA on some input strings
-    input_strings = ['aaa','ba', 'a', 'b', 'aa', 'aba', 'bba', 'bbb']
-    
+    input_strings = ['aaa', 'ba', 'a', 'b', 'aa', 'aba', 'bba', 'bbb']
+
     print("Test the DFA on some strings \n")
 
     for s in input_strings:
@@ -129,7 +126,7 @@ if __name__ == '__main__':
         print(f'{s}: {dfa.in_accept_state()}')
 
     # Now we check if the language that the DFA accepts is empty or not.
-    
+
     print('\n')
 
     if dfa.is_language_empty():
@@ -159,7 +156,7 @@ if __name__ == '__main__':
     print('Creating the DFA\'s complement...')
     print('\n')
     complement = dfa.complement()
-    
+
     # Check if complemnt of our DFA is empty or not.
 
     if complement.is_language_empty():
@@ -174,7 +171,6 @@ if __name__ == '__main__':
     else:
         print("Language accepted by the complement of our DFA is not finite")
 
-
     # Some strings that the complement of our DFA accepts
     print('\n')
     print('Some strings that the complement of our DFA accepts')
@@ -185,4 +181,11 @@ if __name__ == '__main__':
     print('\n')
     print('length of the shortest string is : ', complement.shortestWord(complement_accepted_strings))
     print('\n')
-    
+
+    min_dfa = dfa.minimize()
+    print(min_dfa.accept_states)
+    print(min_dfa.states)
+    print(min_dfa.start_state)
+    print(min_dfa.transition_function)
+
+
