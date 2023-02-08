@@ -167,6 +167,30 @@ class DFA:
         return DFA(new_states, new_alphabet, new_transition_function, new_start_state, new_accept_states)
 
 
+    @staticmethod
+    def difference(cls, dfa1, dfa2):
+        return dfa1.difference(dfa2)
+
+    def difference(self, dfa2):
+        complement_dfa2 = dfa2.complement()
+        difference_dfa = self.intersection(complement_dfa2)
+        return difference_dfa
+
+    @staticmethod
+    def isSubset(cls, dfa1, dfa2):
+        return dfa1.isSubset(dfa2)
+
+    def isSubset(self, dfa2):
+        return self.difference(dfa2).is_language_empty()
+
+    @staticmethod
+    def isDisjoint(cls, dfa1, dfa2):
+        return dfa1.idDisjoint(dfa2)
+
+    def isDisjoint(self, dfa2):
+        return self.intersection(dfa2).is_language_empty()
+
+
 if __name__ == '__main__':
 
     states = {'S1', 'S2', 'S3', 'S4', 'S5'}
@@ -265,10 +289,108 @@ if __name__ == '__main__':
     print('length of the shortest string is : ', complement.shortestWord(complement_accepted_strings))
     print('\n')
 
-    min_dfa = dfa.minimize()
-    print(min_dfa.accept_states)
-    print(min_dfa.states)
-    print(min_dfa.start_state)
-    print(min_dfa.transition_function)
+    # Creating Two DFA's. The dfa1 accepts string without substring 'aa' and dfa2 accepts strings that end with 'ab.
+
+    dfa1 = DFA({'A', 'B', 'C'},
+        {'a', 'b'},
+        {
+            ('A', 'a'): 'B',
+            ('A', 'b'): 'A',
+            ('B', 'a'): 'C',
+            ('B', 'b'): 'A',
+            ('C', 'a'): 'C',
+            ('C', 'b'): 'C',
+        },
+        'A',
+        {'A', 'B'}
+        )
+    dfa2 = DFA({'P', 'Q', 'R'},
+        {'a', 'b'},
+        {
+               ('P', 'a'): 'Q',
+               ('P', 'b'): 'P',
+               ('Q', 'a'): 'Q',
+               ('Q', 'b'): 'R',
+               ('R', 'a'): 'Q',
+               ('R', 'b'): 'P',
+        },
+        'P',
+        {'R'}
+        )
+
+    # Creating the union of these two DFA's in both demanded ways and checking some of its properties
+    dfa_union = DFA.union(dfa1, dfa2)
+    print('states: ',dfa_union.states)
+    print('Accepting states: ',dfa_union.accept_states)
+    print('Transition Function: ',dfa_union.transition_function)
+    print('DFA alphabet: ',dfa_union.alphabet)
+    print('Start states: ',dfa_union.start_state)
+
+    union = dfa1.union(dfa2)
+    print('states: ', union.states)
+    print('Accepting states: ', union.accept_states)
+    print('Transition Function: ', union.transition_function)
+    print('DFA alphabet: ', union.alphabet)
+    print('Start states: ', union.start_state)
 
 
+    unionStrings = []
+    union.generate_strings(union.start_state, '', len(union.states), unionStrings)
+    print(unionStrings)
+
+    if union.isFinite():
+        print('union is finite')
+    else:
+        print('union is not finite')
+
+    # Creating the intersection of these two DFA's in both demanded ways and checking some of its properties.
+
+    inter = dfa1.intersection(dfa2)
+    print('states: ', inter.states)
+    print('Accepting states: ', inter.accept_states)
+    print('Transition Function: ', inter.transition_function)
+    print('DFA alphabet: ', inter.alphabet)
+    print('Start states: ', inter.start_state)
+
+    intersection = DFA.intersection(dfa1, dfa2)
+    print('states: ', intersection.states)
+    print('Accepting states: ', intersection.accept_states)
+    print('Transition Function: ', intersection.transition_function)
+    print('DFA alphabet: ', intersection.alphabet)
+    print('Start states: ', intersection.start_state)
+
+    intersectionStrings = []
+    intersection.generate_strings(intersection.start_state, '', len(intersection.states), intersectionStrings)
+    print(intersectionStrings)
+
+    if intersection.isFinite():
+      print('Intersection is finite')
+    else:
+    print('Intersection is not finite')
+
+    # Creating the difference of these two DFA's in both demanded ways.
+
+    diff = dfa1.difference(dfa2)
+    print('states: ', diff.states)
+    print('Accepting states: ', diff.accept_states)
+    print('Transition Function: ', diff.transition_function)
+    print('DFA alphabet: ', diff.alphabet)
+    print('Start states: ', diff.start_state)
+
+
+    difference = DFA.difference(dfa1, dfa2)
+    print('difference states: ', difference.states)
+    print('difference Accepting states: ', difference.accept_states)
+    print('difference Transition Function: ', difference.transition_function)
+    print('difference DFA alphabet: ', difference.alphabet)
+    print('difference Start states: ', difference.start_state)
+
+    differenceStrings = []
+    difference.generate_strings(difference.start_state, '', len(difference.states), differenceStrings)
+    print(differenceStrings)
+
+
+    # Checking if these two DFA's are disjoint or not
+    print(dfa1.isDisjoint(dfa2))
+    # Checking if dfa1 is a subset of dfa1 U dfa2 (it always must be true)
+    print(dfa1.isSubset(union))
