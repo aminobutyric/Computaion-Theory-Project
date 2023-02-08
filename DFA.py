@@ -338,7 +338,7 @@ if __name__ == '__main__':
     union.generate_strings(union.start_state, '', len(union.states), unionStrings)
     print(unionStrings)
 
-    if union.isFinite():
+    if union.is_finite():
         print('union is finite')
     else:
         print('union is not finite')
@@ -363,7 +363,7 @@ if __name__ == '__main__':
     intersection.generate_strings(intersection.start_state, '', len(intersection.states), intersectionStrings)
     print(intersectionStrings)
 
-    if intersection.isFinite():
+    if intersection.is_finite():
       print('Intersection is finite')
     else:
       print('Intersection is not finite')
