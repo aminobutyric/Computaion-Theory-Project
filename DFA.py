@@ -479,3 +479,10 @@ if __name__ == '__main__':
     print(dfa1.isDisjoint(dfa2))
     # Checking if dfa1 is a subset of dfa1 U dfa2 (it always must be true)
     print(dfa1.isSubset(union))
+
+
+    #minimizing a dfa
+    dfa.minimize()
+    print('Accepting states:', dfa.accept_states)
+    print('Transition Function :' , dfa.transition_function)
+        
