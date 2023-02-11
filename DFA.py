@@ -1,4 +1,7 @@
 import itertools
+from disjoint import DisjointSet
+from collections import defaultdict
+
 
 class DFA:
 
@@ -189,6 +192,95 @@ class DFA:
 
     def isDisjoint(self, dfa2):
         return self.intersection(dfa2).is_language_empty()
+
+    def _remove_unreachable_states(self):
+        graph = defaultdict(list)
+
+        # Build a graph with the transition states as edges
+        for (from_state, _), to_state in self.transition_function.items():
+            graph[from_state].append(to_state)
+
+        # Perform a depth-first search starting from the start state
+        stack = [self.start_state]
+        reachable_states = set()
+
+        while stack:
+            state = stack.pop()
+
+            if state not in reachable_states:
+                stack.extend(graph[state])
+
+            reachable_states.add(state)
+
+        # Filter the states, final states, and transitions based on the reachable states
+        self.states = [state for state in self.states if state in reachable_states]
+        self.accept_states = [state for state in self.accept_states if state in reachable_states]
+        self.transition_function = {key: value for key, value in self.transition_function.items() if key[0] in reachable_states}
+
+    def minimize(self):
+        self._remove_unreachable_states()
+
+        def order_tuple(a, b):
+            return (frozenset([a]), frozenset([b])) if a < b else (frozenset([b]), frozenset([a]))
+
+        table = {}
+        sorted_states = sorted(self.states)
+
+        for i, state1 in enumerate(sorted_states):
+            for state2 in sorted_states[i + 1:]:
+                table[frozenset([state1, state2])] = (state1 in self.accept_states) != (state2 in self.accept_states)
+
+        flag = True
+        while flag:
+            flag = False
+            for i, state1 in enumerate(sorted_states):
+                for state2 in sorted_states[i + 1:]:
+                    if table[frozenset([state1, state2])]:
+                        continue
+                    for w in self.alphabet:
+                        t1 = self.transition_function.get((state1, w), None)
+                        t2 = self.transition_function.get((state2, w), None)
+                        if t1 is not None and t2 is not None and t1 != t2:
+                            marked = table[frozenset([t1, t2])]
+                            flag = flag or marked
+                            table[frozenset([state1, state2])] = marked
+                            if marked:
+                                break
+
+        d = DisjointSet(self.states)
+        for k, v in table.items():
+            if not v:
+                d.union(*k)
+
+        new_states = {}
+        for i, s in enumerate(d.get(), 1):
+            for item in s:
+                new_states[item] = str(i)
+
+        self.states = [str(x) for x in range(1, len(d.get()) + 1)]
+        new_final_states = []
+        self.start_state = new_states[self.start_state]
+
+        for s in d.get():
+            for item in s:
+                if item in self.accept_states:
+                    new_final_states.append(new_states[item])
+                    break
+
+        self.transition_function = {(new_states[k[0]], k[1]): new_states[v] for k, v in
+                                    self.transition_function.items()}
+        self.accept_states = new_final_states
+
+        def __str__(self):
+            '''
+            String representation
+            '''
+            num_of_state = len(self.states)
+            start_state = self.start_state
+            num_of_final = len(self.final_states)
+
+            return '{} states. {} final states. start state - {}'.format( \
+                num_of_state, num_of_final, start_state)
 
 
 if __name__ == '__main__':
