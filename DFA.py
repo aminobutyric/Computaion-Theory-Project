@@ -44,13 +44,6 @@ class DFA:
                 break
         return not found_accept
 
-        visited = set()
-        rec_stack = set()
-        for state in self.states:
-            if state not in visited:
-                if not dfs(state, visited, rec_stack):
-                    return False
-        return True
 
     def generate_strings(self, state, current_string, max_length, list):
 
